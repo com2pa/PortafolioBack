@@ -1,11 +1,18 @@
 import 'dotenv/config'
 
-const required = ['MONGO_URI_TEST', 'ACCESS_TOKEN_SECRET']
+const nodeEnv = process.env.NODE_ENV || 'development'
+const isProd = nodeEnv === 'production'
+const mongoUriKey = isProd ? 'MONGO_URI_PROD' : 'MONGO_URI_TEST'
+const mongoUri = process.env[mongoUriKey]
 
-for (const key of required) {
-  if (!process.env[key]) {
-    throw new Error(`Variable de entorno requerida: ${key}`)
-  }
+if (!mongoUri) {
+  throw new Error(
+    `Variable de entorno requerida: ${mongoUriKey} (${isProd ? 'producción' : 'desarrollo'}).`,
+  )
+}
+
+if (!process.env.ACCESS_TOKEN_SECRET) {
+  throw new Error('Variable de entorno requerida: ACCESS_TOKEN_SECRET')
 }
 
 if (!process.env.ADMIN_PASSWORD) {
@@ -26,9 +33,8 @@ function parseEmails(value) {
 }
 
 const contactEmails = parseEmails(process.env.CONTACT_EMAILS)
-const nodeEnv = process.env.NODE_ENV || 'development'
 
-if (!contactEmails.length && nodeEnv === 'production') {
+if (!contactEmails.length && isProd) {
   throw new Error('CONTACT_EMAILS es requerida en producción.')
 }
 
@@ -45,7 +51,7 @@ const jwtExpiresMs = (() => {
 export const env = {
   nodeEnv,
   port: Number(process.env.PORT) || 5000,
-  mongoUri: process.env.MONGO_URI_TEST,
+  mongoUri,
   jwtSecret: process.env.ACCESS_TOKEN_SECRET,
   jwtExpiresIn,
   jwtExpiresMs,
