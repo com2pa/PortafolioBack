@@ -53,15 +53,43 @@ const SEED_PROJECTS = [
 export async function seedDatabase() {
   const { email, password, name } = env.admin
 
+  if (!email || !password) {
+    throw new Error('ADMIN_EMAIL y ADMIN_PASSWORD son requeridos para el seed.')
+  }
+
   const existingAdmin = await User.findOne({ email })
+  const hashed = await bcrypt.hash(password, 10)
+
   if (!existingAdmin) {
     await User.create({
       name,
       email,
-      password: await bcrypt.hash(password, 10),
+      password: hashed,
       role: 'admin',
     })
     console.log(`Admin creado: ${email}`)
+  } else {
+    // Sincroniza credenciales desde env (Render / .env) para este portafolio de un solo admin
+    const samePassword = await bcrypt.compare(password, existingAdmin.password)
+    let changed = false
+
+    if (!samePassword) {
+      existingAdmin.password = hashed
+      changed = true
+    }
+    if (existingAdmin.name !== name) {
+      existingAdmin.name = name
+      changed = true
+    }
+    if (existingAdmin.role !== 'admin') {
+      existingAdmin.role = 'admin'
+      changed = true
+    }
+
+    if (changed) {
+      await existingAdmin.save()
+      console.log(`Admin sincronizado desde env: ${email}`)
+    }
   }
 
   const count = await Project.countDocuments()

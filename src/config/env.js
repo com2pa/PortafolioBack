@@ -20,13 +20,17 @@ if (!process.env.ACCESS_TOKEN_SECRET) {
   throw new Error('Variable de entorno requerida: ACCESS_TOKEN_SECRET')
 }
 
-if (!process.env.ADMIN_PASSWORD) {
+const adminPassword = String(process.env.ADMIN_PASSWORD || '')
+  .split('#')[0]
+  .trim()
+
+if (!adminPassword) {
   throw new Error(
     'Variable de entorno requerida: ADMIN_PASSWORD (mín. 8 caracteres, sin valor por defecto).',
   )
 }
 
-if (String(process.env.ADMIN_PASSWORD).length < 8) {
+if (adminPassword.length < 8) {
   throw new Error('ADMIN_PASSWORD debe tener al menos 8 caracteres.')
 }
 
@@ -72,7 +76,7 @@ export const env = {
     email: (process.env.ADMIN_EMAIL || 'admin@merwilvegas.com')
       .toLowerCase()
       .trim(),
-    password: process.env.ADMIN_PASSWORD,
+    password: adminPassword,
     name: process.env.ADMIN_NAME || 'Merwil Vegas',
   },
 }
