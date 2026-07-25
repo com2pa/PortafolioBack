@@ -2,12 +2,17 @@ import 'dotenv/config'
 
 const nodeEnv = process.env.NODE_ENV || 'development'
 const isProd = nodeEnv === 'production'
-const mongoUriKey = isProd ? 'MONGO_URI_PROD' : 'MONGO_URI_TEST'
-const mongoUri = process.env[mongoUriKey]
+
+// Prod: MONGO_URI_PROD, o la misma de pruebas si aún no separas DBs
+const mongoUri = isProd
+  ? process.env.MONGO_URI_PROD || process.env.MONGO_URI_TEST
+  : process.env.MONGO_URI_TEST
 
 if (!mongoUri) {
   throw new Error(
-    `Variable de entorno requerida: ${mongoUriKey} (${isProd ? 'producción' : 'desarrollo'}).`,
+    isProd
+      ? 'Variable de entorno requerida: MONGO_URI_PROD o MONGO_URI_TEST.'
+      : 'Variable de entorno requerida: MONGO_URI_TEST (desarrollo).',
   )
 }
 
@@ -55,7 +60,11 @@ export const env = {
   jwtSecret: process.env.ACCESS_TOKEN_SECRET,
   jwtExpiresIn,
   jwtExpiresMs,
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  clientUrl:
+    process.env.CLIENT_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    'http://localhost:5173',
+
   emailUser: process.env.EMAIL_USER || '',
   emailPass: process.env.EMAIL_PASS || '',
   contactEmails,

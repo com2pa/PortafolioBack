@@ -30,7 +30,26 @@ export function createApp() {
 
   app.use(
     cors({
-      origin: env.clientUrl,
+      origin(origin, callback) {
+        // Peticiones same-origin / herramientas sin Origin
+        if (!origin) return callback(null, true)
+
+        const allowed = new Set(
+          [env.clientUrl, process.env.RENDER_EXTERNAL_URL].filter(Boolean),
+        )
+
+        if (allowed.has(origin)) return callback(null, true)
+
+        // Mismo servicio en Render aunque CLIENT_URL no coincida aún
+        try {
+          const { hostname } = new URL(origin)
+          if (hostname.endsWith('.onrender.com')) return callback(null, true)
+        } catch {
+          /* ignore */
+        }
+
+        return callback(new Error(`CORS bloqueado para origen: ${origin}`))
+      },
       credentials: true,
     }),
   )
