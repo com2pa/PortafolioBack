@@ -1,5 +1,5 @@
-# Render — API (Web Service)
-# Repo: PortafolioBack · Root Directory: . (raíz del repo backend)
+# Render — un solo Web Service (API + frontend en dist/)
+# Genera dist/ antes con: npm run build (desde backend, con ../frontend presente)
 
 services:
   - type: web
@@ -36,6 +36,6 @@ services:
       - key: JWT_EXPIRES_IN
         value: 12h
       - key: COOKIE_SAMESITE
-        value: none
+        value: lax
       - key: UPLOADS_DIR
         value: /opt/render/project/src/uploads

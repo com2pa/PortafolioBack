@@ -1,8 +1,8 @@
-# Portafolio — Backend (API)
+# Portafolio — Backend (API + web)
 
-API Express del portafolio de Merwil Vegas. Despliegue en Render: ver también `../frontend/DEPLOY-RENDER.md` (o el archivo equivalente en el repo frontend).
+API Express que también puede servir el frontend (build de Vite en `dist/`).
 
-## Arranque local
+## Arranque local (solo API)
 
 ```bash
 npm install
@@ -10,13 +10,32 @@ cp .env.example .env
 npm run dev
 ```
 
-## Producción (Render)
+## Build del frontend → `backend/dist`
 
-- **Type:** Web Service  
-- **Build:** `npm install`  
-- **Start:** `npm start`  
-- **Health:** `GET /api/health`
+Con ambos repos hermanos (`Portafolio/frontend` y `Portafolio/backend`):
 
-Variables mínimas: `MONGO_URI_TEST`, `ACCESS_TOKEN_SECRET`, `CLIENT_URL`, `ADMIN_PASSWORD`, `CONTACT_EMAILS`, `EMAIL_USER`, `EMAIL_PASS`, `COOKIE_SAMESITE=none`.
+```bash
+cd backend
+npm run build
+```
 
-Detalle completo en el guía de despliegue del frontend (`DEPLOY-RENDER.md`).
+Eso ejecuta `npm run build` en el front con `VITE_API_URL=/api` y copia el resultado a `backend/dist`.
+
+Luego:
+
+```bash
+npm start
+```
+
+Abre `http://localhost:5000` — API en `/api` y la web en `/`.
+
+## Render (un solo Web Service)
+
+1. Corre `npm run build` en local para generar `dist/`.
+2. Sube el repo backend **incluyendo `dist/`**.
+3. Build Command: `npm install`
+4. Start Command: `npm start`
+5. `CLIENT_URL=https://tu-servicio.onrender.com`
+6. `COOKIE_SAMESITE=lax` (mismo origen)
+
+Health: `GET /api/health`

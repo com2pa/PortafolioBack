@@ -3,3 +3,4 @@ uploads/
 .env
 *.log
 .DS_Store
+# dist/ se genera con `npm run build` (copia del frontend) y se sube a Render

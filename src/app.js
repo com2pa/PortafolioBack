@@ -3,12 +3,18 @@ import cors from 'cors'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
+import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { env } from './config/env.js'
 import routes from './routes/index.js'
 import { uploadsDir } from './middleware/upload.middleware.js'
 import { apiLimiter } from './middleware/rateLimit.middleware.js'
 import { errorHandler, notFound } from './middleware/error.middleware.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const frontendDist = path.resolve(__dirname, '../dist')
 
 export function createApp() {
   const app = express()
@@ -67,6 +73,18 @@ export function createApp() {
   )
 
   app.use('/api', apiLimiter, routes)
+
+  // Frontend build (Vite) copiado a backend/dist
+  if (fs.existsSync(frontendDist)) {
+    app.use(express.static(frontendDist, { index: false }))
+
+    app.get(/^(?!\/api(?:\/|$)|\/uploads(?:\/|$)).*/, (req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+      res.sendFile(path.join(frontendDist, 'index.html'), (err) => {
+        if (err) next(err)
+      })
+    })
+  }
 
   app.use(notFound)
   app.use(errorHandler)
