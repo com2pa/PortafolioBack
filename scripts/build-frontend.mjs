@@ -14,18 +14,31 @@ if (!fs.existsSync(path.join(frontendRoot, 'package.json'))) {
   process.exit(1)
 }
 
-console.log('→ Building frontend (VITE_API_URL=/api)…')
+console.log('→ Building frontend (VITE_API_URL=/api, sin localhost)…')
 execSync('npm run build', {
   cwd: frontendRoot,
   stdio: 'inherit',
   env: {
     ...process.env,
+    // Forzar mismo origen; no debe quedar localhost en el bundle
     VITE_API_URL: '/api',
+    NODE_ENV: 'production',
   },
 })
 
 if (!fs.existsSync(frontendDist)) {
   console.error('El build no generó frontend/dist')
+  process.exit(1)
+}
+
+const builtJs = fs
+  .readdirSync(path.join(frontendDist, 'assets'))
+  .filter((f) => f.endsWith('.js'))
+  .map((f) => fs.readFileSync(path.join(frontendDist, 'assets', f), 'utf8'))
+  .join('\n')
+
+if (builtJs.includes('localhost:5000')) {
+  console.error('ERROR: el bundle todavía contiene localhost:5000. Abortando.')
   process.exit(1)
 }
 
