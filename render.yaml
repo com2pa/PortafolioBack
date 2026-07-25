@@ -1,0 +1,41 @@
+# Render — API (Web Service)
+# Repo: PortafolioBack · Root Directory: . (raíz del repo backend)
+
+services:
+  - type: web
+    name: portafolio-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI_TEST
+        sync: false
+      - key: ACCESS_TOKEN_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: CONTACT_EMAILS
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: Merwil Vegas
+      - key: JWT_EXPIRES_IN
+        value: 12h
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: UPLOADS_DIR
+        value: /opt/render/project/src/uploads

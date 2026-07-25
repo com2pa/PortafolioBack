@@ -9,8 +9,8 @@ async function bootstrap() {
 
   const app = createApp()
 
-  app.listen(env.port, () => {
-    console.log(`API en http://localhost:${env.port}`)
+  app.listen(env.port, '0.0.0.0', () => {
+    console.log(`API en puerto ${env.port} (${env.nodeEnv})`)
     console.log(`CORS origen: ${env.clientUrl}`)
   })
 }

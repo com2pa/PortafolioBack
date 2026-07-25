@@ -13,7 +13,14 @@ export function getTokenFromRequest(req) {
 }
 
 export function setAuthCookie(res, token) {
-  const sameSite = process.env.COOKIE_SAMESITE === 'none' ? 'none' : 'lax'
+  // En Render (front y API en dominios distintos) hace falta SameSite=None + Secure
+  const sameSite =
+    process.env.COOKIE_SAMESITE === 'lax'
+      ? 'lax'
+      : env.nodeEnv === 'production'
+        ? 'none'
+        : 'lax'
+
   res.cookie(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: env.nodeEnv === 'production' || sameSite === 'none',
@@ -24,7 +31,13 @@ export function setAuthCookie(res, token) {
 }
 
 export function clearAuthCookie(res) {
-  const sameSite = process.env.COOKIE_SAMESITE === 'none' ? 'none' : 'lax'
+  const sameSite =
+    process.env.COOKIE_SAMESITE === 'lax'
+      ? 'lax'
+      : env.nodeEnv === 'production'
+        ? 'none'
+        : 'lax'
+
   res.clearCookie(AUTH_COOKIE, {
     httpOnly: true,
     secure: env.nodeEnv === 'production' || sameSite === 'none',
